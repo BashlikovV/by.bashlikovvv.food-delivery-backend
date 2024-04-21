@@ -126,6 +126,6 @@ val dataModule =
         single<OrdersService> {
             val database: Database = get()
 
-            OrdersService(database)
+            OrdersService(database, get())
         }
     }

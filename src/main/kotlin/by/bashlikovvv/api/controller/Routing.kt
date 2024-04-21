@@ -1,5 +1,6 @@
 package by.bashlikovvv.api.controller
 
+import by.bashlikovvv.api.controller.routing.usersRouting
 import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -13,6 +14,7 @@ fun Application.configureRouting() {
         get("/") {
             call.respondText("Hello World!")
         }
-        
+        usersRouting()
+
     }
 }

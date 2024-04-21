@@ -2,10 +2,12 @@ package by.bashlikovvv.data.local.dao
 
 import by.bashlikovvv.data.local.contract.PsqlContract.PaymentCartsTable
 import by.bashlikovvv.util.dbQuery
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
+@Serializable
 data class ExposedPaymentCart(
     val number: String,
     val system: String,

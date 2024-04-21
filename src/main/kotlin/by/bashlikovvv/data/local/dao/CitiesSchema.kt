@@ -3,11 +3,13 @@ package by.bashlikovvv.data.local.dao
 import by.bashlikovvv.data.local.contract.PsqlContract.CitiesTable
 import by.bashlikovvv.data.local.contract.PsqlContract.CountriesTable
 import by.bashlikovvv.util.dbQuery
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SchemaUtils.create
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
+@Serializable
 data class ExposedCity(
     val name: String,
     val timeZone: Int,

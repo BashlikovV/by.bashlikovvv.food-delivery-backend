@@ -3,28 +3,41 @@ package by.bashlikovvv.data.local.dao
 import by.bashlikovvv.data.local.contract.PsqlContract.OrdersTable
 import by.bashlikovvv.util.dbQuery
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.transactions.transaction
 
 data class ExposedOrder(
     val address: ExposedUserAddress,
     val date: Long,
-    val rate: ExposedOrderRate,
-    val status: ExposedOrderStatus
+    val rate: ExposedOrderRate?,
+    val status: ExposedOrderStatus,
+    val user: ExposedUser?
 )
 
-class OrdersService(database: Database) {
+class OrdersService(
+    database: Database,
+    private val usersService: UsersService
+) {
     object Orders : Table(OrdersTable.TABLE_NAME) {
         val id = integer(OrdersTable.COLUMN_ID).autoIncrement()
         val address = integer(OrdersTable.COLUMN_ORDER_ADDRESS_FK).references(UserAddressService.UserAddresses.id)
         val date = long(OrdersTable.COLUMN_DATE)
         val rate = integer(OrdersTable.COLUMN_ORDER_RATE_FK).references(OrderRatesService.OrdersRates.id)
         val status = integer(OrdersTable.COLUM_ORDER_STATUS_FK).references(OrderStatusesService.OrdersStatuses.id)
+        val user = integer(OrdersTable.COLUMN_ORDER_USER_FK).references(UsersService.Users.id)
+    }
+
+    init {
+        transaction(database) {
+            SchemaUtils.create(Orders)
+        }
     }
 
     suspend fun create(
         order: ExposedOrder,
         addressId: Int,
         rateId: Int,
-        statusId: Int
+        statusId: Int,
+        userId: Int,
     ): Int =
         dbQuery {
             Orders.insert {
@@ -32,6 +45,7 @@ class OrdersService(database: Database) {
                 it[date] = order.date
                 it[rate] = rateId
                 it[status] = statusId
+                it[user] = userId
             }[Orders.id]
         }
 
@@ -144,7 +158,8 @@ class OrdersService(database: Database) {
                         address = userAddress,
                         date = it[Orders.date],
                         rate = rate,
-                        status = orderStatus
+                        status = orderStatus,
+                        user = usersService.read(it[Orders.user])
                     )
                 }.singleOrNull()
         }
