@@ -1,5 +1,6 @@
 package by.bashlikovvv.api.controller.routing
 
+import by.bashlikovvv.api.dto.request.CheckUserResponseDto
 import by.bashlikovvv.api.dto.request.CreateUserDto
 import by.bashlikovvv.api.dto.request.toExposedUser
 import by.bashlikovvv.data.local.dao.PaymentCartsService
@@ -103,12 +104,12 @@ private fun Route.checkUser(usersService: UsersService) {
             )
 
             if (hash.joinToString() == user.hash) {
-                call.respond(HttpStatusCode.OK, user)
+                call.respond(HttpStatusCode.OK, CheckUserResponseDto(user = user))
             } else {
-                call.respond(HttpStatusCode.BadRequest, "incorrect password")
+                call.respond(HttpStatusCode.BadRequest, CheckUserResponseDto("incorrect password"))
             }
         } else {
-            call.respond(HttpStatusCode.BadRequest, "incorrect email")
+            call.respond(HttpStatusCode.BadRequest, CheckUserResponseDto("incorrect email"))
         }
     }
 }

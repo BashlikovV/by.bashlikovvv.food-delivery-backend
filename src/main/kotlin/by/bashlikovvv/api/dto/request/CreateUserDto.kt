@@ -32,6 +32,7 @@ suspend fun CreateUserDto.toExposedUser(
     )
 
     return ExposedUser(
+        id = 0,
         email = email,
         salt = salt.joinToString(),
         hash = hash.joinToString(),

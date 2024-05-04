@@ -22,6 +22,7 @@ data class CreateProductDto(
         nutritionFactsService: NutritionFactsService
     ): ExposedProduct {
         return ExposedProduct(
+            id = 0,
             description = description,
             name = name,
             group = groupsService.read(group) ?: throw RuntimeException("Group not found"),

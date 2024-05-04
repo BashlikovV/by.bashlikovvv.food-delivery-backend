@@ -25,13 +25,16 @@ class CartsService(database: Database) {
         cart: ExposedCart,
         amountId: Int,
         productId: Int,
+        userId: Int
     ): Int =
         dbQuery {
             Carts.insert {
+                it[id] = (Carts.selectAll().maxOfOrNull { it[id] } ?: 0) + 1
                 it[size] = cart.size
                 it[items] = cart.items
                 it[amount] = amountId
                 it[product] = productId
+                it[user] = userId
             }[Carts.id]
         }
 
@@ -102,26 +105,29 @@ class CartsService(database: Database) {
                     )
                 }
                 .firstOrNull() ?: return@dbQuery listOf()
-            val product = Join(
-                table = Carts,
-                otherTable = ProductsService.Products,
-                joinType = JoinType.FULL,
-                additionalConstraint = { Carts.product eq ProductsService.Products.id }
-            )
-                .selectAll()
-                .map { productDbo ->
-                    ExposedProduct(
-                        description = productDbo[ProductsService.Products.description],
-                        name = productDbo[ProductsService.Products.name],
-                        group = group,
-                        producer = producer,
-                        nutritionFact = nutritionFact
-                    )
-                }
-                .firstOrNull() ?: return@dbQuery listOf()
             Carts.selectAll()
                 .where { Carts.user eq id }
                 .map {
+                    val product = Join(
+                        table = Carts,
+                        otherTable = ProductsService.Products,
+                        joinType = JoinType.FULL,
+                        additionalConstraint = { Carts.product eq ProductsService.Products.id }
+                    )
+                        .selectAll()
+                        .where { ProductsService.Products.id eq it[Carts.product] }
+                        .map { productDbo ->
+                            ExposedProduct(
+                                id = productDbo[ProductsService.Products.id],
+                                description = productDbo[ProductsService.Products.description],
+                                name = productDbo[ProductsService.Products.name],
+                                group = group,
+                                producer = producer,
+                                nutritionFact = nutritionFact
+                            )
+                        }
+                        .firstOrNull() ?: return@dbQuery listOf()
+
                     ExposedCart(
                         size = it[Carts.size],
                         items = it[Carts.items],

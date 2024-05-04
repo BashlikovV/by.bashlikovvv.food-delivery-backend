@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 
 data class ExposedProduct(
+    val id: Int,
     val description: String,
     val name: String,
     val group: ExposedProductGroup,
@@ -112,6 +113,7 @@ class ProductsService(database: Database) {
                         .firstOrNull() ?: return@dbQuery listOf()
 
                     ExposedProduct(
+                        id = it[Products.id],
                         description = it[Products.description],
                         name = it[Products.name],
                         group = group,
@@ -177,6 +179,7 @@ class ProductsService(database: Database) {
                 .where { Products.id eq id }
                 .map {
                     ExposedProduct(
+                        id = it[Products.id],
                         description = it[Products.description],
                         name = it[Products.name],
                         group = group,

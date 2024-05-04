@@ -1,5 +1,6 @@
 package by.bashlikovvv.api.controller
 
+import by.bashlikovvv.api.controller.routing.cartsRouting
 import by.bashlikovvv.api.controller.routing.productsRouting
 import by.bashlikovvv.api.controller.routing.usersRouting
 import io.ktor.server.application.*
@@ -17,5 +18,6 @@ fun Application.configureRouting() {
         }
         usersRouting()
         productsRouting()
+        cartsRouting()
     }
 }

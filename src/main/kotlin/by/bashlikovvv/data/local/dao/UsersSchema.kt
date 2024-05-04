@@ -10,6 +10,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 @Serializable
 data class ExposedUser(
+    val id: Int,
     val email: String,
     val salt: String,
     val hash: String,
@@ -161,6 +162,7 @@ class UsersService(database: Database) {
                 .where { Users.id eq id }
                 .map {
                     ExposedUser(
+                        id = it[Users.id],
                         email = it[Users.email],
                         salt = it[Users.salt],
                         hash = it[Users.hash],
@@ -272,6 +274,7 @@ class UsersService(database: Database) {
                 .where { Users.email eq email }
                 .map {
                     ExposedUser(
+                        id = it[Users.id],
                         email = it[Users.email],
                         salt = it[Users.salt],
                         hash = it[Users.hash],
