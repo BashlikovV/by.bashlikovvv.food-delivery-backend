@@ -147,12 +147,12 @@ object PsqlContract {
     }
 
     object OrdersTable {
-        const val TABLE_NAME = ""
-        const val COLUMN_ID = ""
-        const val COLUMN_ORDER_USER_FK = ""
-        const val COLUMN_ORDER_ADDRESS_FK = ""
-        const val COLUMN_DATE = ""
-        const val COLUMN_ORDER_RATE_FK = ""
-        const val COLUM_ORDER_STATUS_FK = ""
+        const val TABLE_NAME = "orders"
+        const val COLUMN_ID = "order_id"
+        const val COLUMN_ORDER_USER_FK = "order_user_fk"
+        const val COLUMN_ORDER_ADDRESS_FK = "order_address_fk"
+        const val COLUMN_DATE = "order_date"
+        const val COLUMN_ORDER_RATE_FK = "order_rate_fk"
+        const val COLUM_ORDER_STATUS_FK = "order_status_fk"
     }
 }

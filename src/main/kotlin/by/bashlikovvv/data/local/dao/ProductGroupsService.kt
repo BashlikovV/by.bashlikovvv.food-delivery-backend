@@ -12,7 +12,7 @@ import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 
-data class ExposedProductGroup(val name: String)
+data class ExposedProductGroup(val name: String?)
 
 class ProductGroupsService(database: Database) {
     object ProductGroups : Table(ProductGroupsTable.TABLE_NAME) {
@@ -29,7 +29,7 @@ class ProductGroupsService(database: Database) {
     suspend fun create(productGroup: ExposedProductGroup): Int =
         dbQuery {
             ProductGroups.insert {
-                it[name] = productGroup.name
+                it[name] = productGroup.name ?: ""
             }[ProductGroups.id]
         }
 
@@ -53,7 +53,7 @@ class ProductGroupsService(database: Database) {
     ) {
         dbQuery {
             ProductGroups.update({ ProductGroups.id eq id }) {
-                it[name] = productGroup.name
+                it[name] = productGroup.name ?: ""
             }
         }
     }

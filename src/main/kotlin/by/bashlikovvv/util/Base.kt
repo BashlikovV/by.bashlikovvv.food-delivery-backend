@@ -3,6 +3,7 @@ package by.bashlikovvv.util
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
+import io.ktor.util.pipeline.*
 import kotlinx.coroutines.Dispatchers
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 
@@ -21,3 +22,14 @@ suspend inline fun ApplicationCall.respond(
         respond(result.first, result.second)
     }
 }
+
+suspend fun <T>PipelineContext<*, ApplicationCall>.getWithCheck(
+    creator: suspend PipelineContext<*, ApplicationCall>.() -> T
+): T? {
+    return try {
+        creator()
+    } catch (e: Exception) {
+        null
+    }
+}
+

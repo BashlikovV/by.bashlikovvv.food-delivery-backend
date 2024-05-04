@@ -39,6 +39,20 @@ class PaymentCartsService(database: Database) {
         }[PaymentCarts.id]
     }
 
+    suspend fun read(id: Int): ExposedPaymentCart? = dbQuery {
+        PaymentCarts.selectAll()
+            .where { PaymentCarts.id eq id }
+            .map {
+                ExposedPaymentCart(
+                    number = it[PaymentCarts.number],
+                    system = it[PaymentCarts.system],
+                    default = it[PaymentCarts.default],
+                    email = it[PaymentCarts.email]
+                )
+            }
+            .firstOrNull()
+    }
+
     suspend fun delete(id: Int) {
         dbQuery {
             PaymentCarts.deleteWhere { PaymentCarts.id eq id }

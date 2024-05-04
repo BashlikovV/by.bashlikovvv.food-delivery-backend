@@ -43,4 +43,7 @@ dependencies {
     implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
 
     implementation("org.postgresql:postgresql:$postgres_version")
+    implementation("com.google.code.gson:gson:2.8.5")
+
+    implementation("com.github.javafaker:javafaker:0.12")
 }

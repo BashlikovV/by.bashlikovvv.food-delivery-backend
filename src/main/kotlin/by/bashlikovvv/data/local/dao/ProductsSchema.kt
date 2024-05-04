@@ -38,12 +38,87 @@ class ProductsService(database: Database) {
     ): Int =
         dbQuery {
             Products.insert {
+                it[id] = (Products.selectAll().maxOfOrNull { it[id] } ?: 0) + 1
                 it[description] = exposedProduct.description
                 it[name] = exposedProduct.name
                 it[group] = groupId
                 it[producer] = producerId
                 it[nutritionFact] = nutritionFactId
             }[Products.id]
+        }
+
+    suspend fun readAll(): List<ExposedProduct> =
+        dbQuery {
+            Products.selectAll()
+                .map {
+                    val groupId = it[Products.group]
+                    val producerId = it[Products.producer]
+                    val nutritionFactId = it[Products.nutritionFact]
+                    val group = Join(
+                        table = Products,
+                        otherTable = ProductGroupsService.ProductGroups,
+                        joinType = JoinType.FULL,
+                        additionalConstraint = { Products.group eq ProductGroupsService.ProductGroups.id }
+                    )
+                        .selectAll()
+                        .where { ProductGroupsService.ProductGroups.id eq groupId }
+                        .map {
+                            ExposedProductGroup(it[ProductGroupsService.ProductGroups.name])
+                        }
+                        .firstOrNull() ?: return@dbQuery listOf()
+                    val producer = Join(
+                        table = Products,
+                        otherTable = ProducersService.Producers,
+                        joinType = JoinType.FULL,
+                        additionalConstraint = { Products.producer eq ProducersService.Producers.id }
+                    )
+                        .selectAll()
+                        .where { ProducersService.Producers.id eq producerId }
+                        .map {
+                            val countryId = it[ProducersService.Producers.country]
+                            val country = Join(
+                                table = ProducersService.Producers,
+                                otherTable = ProducerCountriesService.ProducerCountries,
+                                joinType = JoinType.FULL,
+                                additionalConstraint = { ProducersService.Producers.country eq ProducerCountriesService.ProducerCountries.id }
+                            )
+                                .selectAll()
+                                .where { ProducersService.Producers.country eq countryId }
+                                .map { ExposedProducerCountry(it[ProducerCountriesService.ProducerCountries.name]) }
+                                .firstOrNull() ?: return@dbQuery listOf()
+
+                            ExposedProducer(
+                                name = it[ProducersService.Producers.name],
+                                country = country
+                            )
+                        }
+                        .firstOrNull() ?: return@dbQuery listOf()
+                    val nutritionFact = Join(
+                        table = Products,
+                        otherTable = NutritionFactsService.NutritionFacts,
+                        joinType = JoinType.FULL,
+                        additionalConstraint = { Products.nutritionFact eq NutritionFactsService.NutritionFacts.id }
+                    )
+                        .selectAll()
+                        .where { NutritionFactsService.NutritionFacts.id eq nutritionFactId }
+                        .map {
+                            ExposedNutritionFact(
+                                proteins = it[NutritionFactsService.NutritionFacts.proteins],
+                                lipids = it[NutritionFactsService.NutritionFacts.lipids],
+                                glucides = it[NutritionFactsService.NutritionFacts.glucides],
+                                calories = it[NutritionFactsService.NutritionFacts.calories]
+                            )
+                        }
+                        .firstOrNull() ?: return@dbQuery listOf()
+
+                    ExposedProduct(
+                        description = it[Products.description],
+                        name = it[Products.name],
+                        group = group,
+                        producer = producer,
+                        nutritionFact = nutritionFact
+                    )
+                }
         }
 
     suspend fun read(id: Int): ExposedProduct? =
